@@ -48,18 +48,11 @@ fetch("http://localhost:3000/api/products") /* On envoie une requête de type GE
       description.classList.add('productDescription');
       description.innerText = value[i].description;
 
-
-
-
-
       document
         .getElementById("items")
         .appendChild(a);
 
     } //Fin de la boucle
-
-
-
   })
 
 
