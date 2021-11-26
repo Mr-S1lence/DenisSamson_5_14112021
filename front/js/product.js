@@ -13,7 +13,7 @@ fetch("http://localhost:3000/api/products/" + productId) /* On envoie une requê
     })
     .then(function (value) {
 
-        //description du produit
+        //détails du produit
         let img = document.createElement("img");
         img.setAttribute("src", `${value.imageUrl}`);
         img.setAttribute("alt", `${value.altTxt}`);
@@ -31,6 +31,9 @@ fetch("http://localhost:3000/api/products/" + productId) /* On envoie une requê
             color.innerText = value.colors[i];
             document.getElementById("colors").appendChild(color);
         }
+
+        //Désactiver "SVP, choisissez une couleur" comme option
+        document.getElementById("colors").firstElementChild.setAttribute("disabled", "disabled");
 
     })
     .catch(function (err) {
@@ -54,7 +57,7 @@ let numberOfProductInCart = localStorage.length;
 function getSelectedColor(elementId) {
     var elt = document.getElementById(elementId);
 
-    if (elt.selectedIndex == -1)
+    if (elt.selectedIndex == 0)
         return null;
     return elt.options[elt.selectedIndex].text;
 }
@@ -72,10 +75,10 @@ function addPdt(indexPdt, idPdt, color, qty) {
 
 //Ajout d'un message pour l'utilisateur
 function msgUser(qty) {
-    const test = document.getElementsByClassName("item__content")[0];
+    const elm = document.getElementsByClassName("item__content")[0];
     let msg = document.createElement("h2");
-    msg.innerText = qty + " articles ont bien été ajoutés à votre panier";
-    test.appendChild(msg);
+    msg.innerText = qty + " article(s) ajouté(s) à votre panier";
+    elm.appendChild(msg);
 }
 
 
@@ -90,29 +93,42 @@ btn.addEventListener('click', function (e) {
         color: getSelectedColor("colors"),
         qty: parseInt(document.getElementById("quantity").value)
     }
-
-    //Boucle pour vérifier si le produit mis dans le panier existe déjà
-    for (let i = 0; i <= numberOfProductInCart; i++) { 
-        console.log(localStorage.getItem("pdt" + i));
-        console.log(newPdt.idPdt + " " + newPdt.color);
-        let objLinea = localStorage.getItem("pdt" + i);
-        let objJson = JSON.parse(objLinea);
-        console.log("i = " + i);
-        if (i == numberOfProductInCart) { //On vérifie si tous les produits dans le panier ont été comparés
-            console.log("Fin des comparaisons / Ajout du nouveau produit");
-            //On utilise numberOfProductInCart comme indice pour le nouveau produit de localStorage
-            addPdt(parseInt(numberOfProductInCart), newPdt.idPdt, newPdt.color, newPdt.qty);
-            msgUser(newPdt.qty); //message de confirmation
-        } else {
-            //On vérifie si le produit ajouté est déjà dans le panier
-            if (newPdt.idPdt == objJson.idPdt & newPdt.color == objJson.color) {
-                let updateQty = newPdt.qty + objJson.qty; //calcul nouvelle quantité du produit
-                addPdt(i, newPdt.idPdt, newPdt.color, updateQty); //Update du produit
+    console.log(newPdt.qty);
+if(newPdt.color == null){
+    alert("Veuillez sélectionner une couleur");
+}else{
+    if(newPdt.qty >= 1 && newPdt.qty <=100){ //Vérification de la quantité rentré par l'utilisateur
+        //Boucle pour vérifier si le produit mis dans le panier existe déjà
+        for (let i = 0; i <= numberOfProductInCart; i++) { 
+            console.log(localStorage.getItem("pdt" + i));
+            console.log(newPdt.idPdt + " " + newPdt.color);
+            let objLinea = localStorage.getItem("pdt" + i);
+            let objJson = JSON.parse(objLinea);
+            console.log("i = " + i);
+            if (i == numberOfProductInCart) { //On vérifie si tous les produits dans le panier ont été comparés
+                console.log("Fin des comparaisons / Ajout du nouveau produit");
+                //On utilise numberOfProductInCart comme indice pour le nouveau produit de localStorage
+                addPdt(parseInt(numberOfProductInCart), newPdt.idPdt, newPdt.color, newPdt.qty);
                 msgUser(newPdt.qty); //message de confirmation
-                i = numberOfProductInCart + 1; //On sort de la boucle
+            } else {
+                //On vérifie si le produit ajouté est déjà dans le panier
+                if (newPdt.idPdt == objJson.idPdt & newPdt.color == objJson.color) {
+                    let updateQty = newPdt.qty + objJson.qty; //calcul nouvelle quantité du produit
+                    addPdt(i, newPdt.idPdt, newPdt.color, updateQty); //Update du produit
+                    msgUser(newPdt.qty); //message de confirmation
+                    i = numberOfProductInCart + 1; //On sort de la boucle
+                }
             }
         }
+    }else{
+        alert("Veuillez indiquer une quantité entre 1 et 100");
     }
+}
+
+
+
+
+ 
     console.log(localStorage);
     numberOfProductInCart = localStorage.length; //mise à jour variable
 });
