@@ -6,8 +6,8 @@ const createProductCard = async () => {
     console.log(localStorage);
         for (let i = 0; i < localStorage.length; i++) {
                     console.log("boucle n°" + i);
-            let productId = JSON.parse(localStorage.getItem("pdt" + i)).idPdt;
-            let color = JSON.parse(localStorage.getItem("pdt" + i)).color;
+            let productId = JSON.parse(localStorage.getItem(localStorage.key(i))).idPdt;
+            let color = JSON.parse(localStorage.getItem(localStorage.key(i))).color;
             /*         console.log("IdPdt : " + productId); */
     
             fetch("http://localhost:3000/api/products/" + productId) /* On envoie une requête de type GET à l'API */
@@ -56,7 +56,7 @@ const createProductCard = async () => {
                     input.setAttribute("name", "itemQuantity");
                     input.setAttribute("min", "1");
                     input.setAttribute("max", "100");
-                    input.setAttribute("value", JSON.parse(localStorage.getItem("pdt" + i)).qty);
+                    input.setAttribute("value", JSON.parse(localStorage.getItem(localStorage.key(i))).qty);
                     let div6 = document.createElement("div");
                     div6.className = 'cart__item__content__settings__delete';
                     let p4 = document.createElement("p");
@@ -131,49 +131,6 @@ async function calculatePrice() {
     document.getElementById("totalPrice").innerText = totalPrice1;
 }
 
-//update LocalStorage
-function addPdt(indexPdt, idPdt, color, qty) {
-    let objJson = {
-        idPdt: idPdt,
-        color: color,
-        qty: qty
-    }
-    let objLinea = JSON.stringify(objJson);
-    localStorage.setItem("pdt" + indexPdt, objLinea);
-}
-
-//changement de quantité
-function changeQuantity() {
-    let el = document.querySelectorAll('.cart__item');
-    for (let i = 0; i < el.length; i++) {
-        let myNode = el[i].closest("article");
-        let dataId = myNode.getAttribute('data-id');
-        let dataColor = myNode.getAttribute('data-color');
-        let inputQty = document.querySelectorAll('.itemQuantity');
-        let objLinea = localStorage.getItem("pdt" + i);
-        let objJson = JSON.parse(objLinea);
-        let msgErr = document.querySelectorAll('.msgErr');
-        el[i].addEventListener('change', (event) => { 
-            if(inputQty[i].value >= 1 && inputQty[i].value <=100){ //Vérification de la quantité rentré par l'utilisateur
-                msgErr[i].innerText = "";
-                inputQty[i].style.border = "none";
-                calculatePrice();
-                if (dataId == objJson.idPdt & dataColor == objJson.color) {
-                    addPdt([i], dataId, dataColor, inputQty[i].value)
-                    console.log(localStorage);
-                }
-            }else{
-                      inputQty[i].focus();
-                      inputQty[i].style.border = "1px solid red";
-                      msgErr[i].innerText = "Veuillez indiquer une quantité entre 1 et 100";
-            }
-        });
-    }
-}
-
-console.log("test");
-console.log(localStorage.getItem(localStorage.key(3)));
-
 //function pour trouver l'index d'un produit dans localStorage 
 //en fonction de son id et de sa couleur
 function findIndexProduct(idPdt, color){
@@ -191,6 +148,53 @@ function findIndexProduct(idPdt, color){
     }   
 }
 
+//update LocalStorage
+function addPdt(keyPdt, idPdt, color, qty) {
+    let objJson = {
+        idPdt: idPdt,
+        color: color,
+        qty: qty
+    }
+    let objLinea = JSON.stringify(objJson);
+    localStorage.setItem(keyPdt, objLinea);
+}
+
+
+//changement de quantité
+function changeQuantity() {
+    let el = document.querySelectorAll('.cart__item');
+    for (let i = 0; i < el.length; i++) {
+        let myNode = el[i].closest("article");
+        let dataId = myNode.getAttribute('data-id');
+        let dataColor = myNode.getAttribute('data-color');
+        let inputQty = document.querySelectorAll('.itemQuantity');
+        let objLinea = localStorage.getItem("pdt" + i);
+        let objJson = JSON.parse(objLinea);
+        let msgErr = document.querySelectorAll('.msgErr');
+        el[i].addEventListener('change', (event) => { 
+                if(inputQty[i].value >= 1 && inputQty[i].value <=100){ //Vérification de la quantité rentré par l'utilisateur
+                    msgErr[i].innerText = "";
+                    inputQty[i].style.border = "none";
+                    calculatePrice();
+/*                     if (dataId == objJson.idPdt & dataColor == objJson.color) { */
+                        addPdt(findIndexProduct(dataId, dataColor), dataId, dataColor, inputQty[i].value)
+                        console.log(localStorage);
+/*                     } */
+                }else{
+                        inputQty[i].focus();
+                        inputQty[i].style.border = "1px solid red";
+                        msgErr[i].innerText = "Veuillez indiquer une quantité entre 1 et 100";
+                }
+        });
+    }
+}
+
+console.log("test");
+console.log(localStorage.getItem(localStorage.key(3)));
+
+
+
+
 //suppression produit 
 function deleteProduct() {
     let deleteBtn = document.getElementsByClassName("deleteItem");
@@ -198,8 +202,6 @@ function deleteProduct() {
         let myNode = child.closest("article");
         deleteBtn = document.getElementsByClassName("deleteItem");
         child.addEventListener('click', function (e) {
-            let dataId = myNode.getAttribute('data-id');
-            let dataColor = myNode.getAttribute('data-color');
             let dataProduct = '[data-id="' + myNode.getAttribute('data-id') + '"][data-color="' + myNode.getAttribute('data-color') + '"]';
             let objDelete = child.closest(dataProduct);
             console.log("index du produit à supprimer :" + findIndexProduct(myNode.getAttribute('data-id'),myNode.getAttribute('data-color')));
@@ -214,10 +216,37 @@ function deleteProduct() {
     });
 }
 
-//vérification données contact
 
 
+function validateDataUser(){
+    const firstName = document.getElementById("firstName").value;
+    const lastName = document.getElementById("lastName").value;
+    const address = document.getElementById("address").value;
+    const city = document.getElementById("city").value;
+    const email = document.getElementById("email").value;
 
+    const cart__order = document.getElementsByClassName("cart__order");
+    console.log(cart__order);
+    
+
+   /*  firstName.addEventListener("input", function(e) {
+    if (/^CODE-/.test(e.target.value)) {
+        console.log("FirstName : ok");
+      } else {
+        console.log("FirstName : notOk");
+      }
+    }); */
+
+/*     email.addEventListener("input", function(e) {
+        if (/^[a-zA-Z0-9.! #$%&'*+/=? ^_`{|}~-]+@[a-zA-Z0-9-]+(?:\. [a-zA-Z0-9-]+)*$/.test(e.target.value)) {
+            console.log("Email : ok");
+          } else {
+            console.log("Email : notOk");
+          }
+        }); */
+
+
+}
 
 
 

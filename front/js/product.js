@@ -62,6 +62,19 @@ function getSelectedColor(elementId) {
     return elt.options[elt.selectedIndex].text;
 }
 
+//Trouver une clé disponible dans local storage
+function createKey(){
+    for (let i = 0; i <= numberOfProductInCart; i++) { 
+        if(localStorage.getItem("pdt" + i) == null){
+            key = "pdt" + i;
+            i = numberOfProductInCart; //fin de la boucle
+            return key;
+        }
+    }
+}
+
+
+
 //Ajout d'un produit
 function addPdt(indexPdt, idPdt, color, qty) {
     let objJson = {
@@ -70,7 +83,7 @@ function addPdt(indexPdt, idPdt, color, qty) {
         qty: qty
     }
     let objLinea = JSON.stringify(objJson);
-    localStorage.setItem("pdt" + indexPdt, objLinea);
+    localStorage.setItem(indexPdt, objLinea);
 }
 
 //Ajout d'un message pour l'utilisateur
@@ -100,21 +113,43 @@ if(newPdt.color == null){
     if(newPdt.qty >= 1 && newPdt.qty <=100){ //Vérification de la quantité rentré par l'utilisateur
         //Boucle pour vérifier si le produit mis dans le panier existe déjà
         for (let i = 0; i <= numberOfProductInCart; i++) { 
-            console.log(localStorage.getItem("pdt" + i));
+            /* console.log(localStorage.getItem(localStorage.key(i))); */
             console.log(newPdt.idPdt + " " + newPdt.color);
-            let objLinea = localStorage.getItem("pdt" + i);
+            let objLinea = localStorage.getItem(localStorage.key(i));
             let objJson = JSON.parse(objLinea);
             console.log("i = " + i);
             if (i == numberOfProductInCart) { //On vérifie si tous les produits dans le panier ont été comparés
                 console.log("Fin des comparaisons / Ajout du nouveau produit");
                 //On utilise numberOfProductInCart comme indice pour le nouveau produit de localStorage
-                addPdt(parseInt(numberOfProductInCart), newPdt.idPdt, newPdt.color, newPdt.qty);
+
+
+                //création de la nouvelle clé du produit ajouter
+
+
+
+
+                addPdt(createKey(), newPdt.idPdt, newPdt.color, newPdt.qty);
+
+
+
+
+
+
                 msgUser(newPdt.qty); //message de confirmation
             } else {
                 //On vérifie si le produit ajouté est déjà dans le panier
                 if (newPdt.idPdt == objJson.idPdt & newPdt.color == objJson.color) {
                     let updateQty = newPdt.qty + objJson.qty; //calcul nouvelle quantité du produit
-                    addPdt(i, newPdt.idPdt, newPdt.color, updateQty); //Update du produit
+
+
+
+
+                    addPdt(localStorage.key(i), newPdt.idPdt, newPdt.color, updateQty); //Update du produit
+
+
+
+
+
                     msgUser(newPdt.qty); //message de confirmation
                     i = numberOfProductInCart + 1; //On sort de la boucle
                 }
