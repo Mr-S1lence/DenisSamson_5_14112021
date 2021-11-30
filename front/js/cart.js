@@ -206,12 +206,6 @@ function changeQuantity() {
     }
 }
 
-/* console.log("test"); */
-/* console.log(localStorage.getItem(localStorage.key(3))); */
-
-
-
-
 //suppression produit 
 function deleteProduct() {
     let deleteBtn = document.getElementsByClassName("deleteItem");
@@ -221,10 +215,8 @@ function deleteProduct() {
         child.addEventListener('click', function (e) {
             let dataProduct = '[data-id="' + myNode.getAttribute('data-id') + '"][data-color="' + myNode.getAttribute('data-color') + '"]';
             let objDelete = child.closest(dataProduct);
- /*            console.log("index du produit à supprimer :" + findIndexProduct(myNode.getAttribute('data-id'),myNode.getAttribute('data-color'))); */
             localStorage.removeItem(findIndexProduct(myNode.getAttribute('data-id'),myNode.getAttribute('data-color')));
             calculatePrice();
-   /*          console.log(localStorage); */
             objDelete.remove();
             setTimeout(() => {
                 calculatePrice();                
@@ -233,50 +225,83 @@ function deleteProduct() {
     });
 }
 
-
-
-function validateDataUser(){
-    const firstName = document.getElementById("firstName").value;
-    const lastName = document.getElementById("lastName").value;
-    const address = document.getElementById("address").value;
-    const city = document.getElementById("city").value;
-    const email = document.getElementById("email").value;
-
-    const cart__order = document.getElementsByClassName("cart__order");
-/*     console.log(cart__order); */
-    
-
-   /*  firstName.addEventListener("input", function(e) {
-    if (/^CODE-/.test(e.target.value)) {
-        console.log("FirstName : ok");
-      } else {
-        console.log("FirstName : notOk");
-      }
-    }); */
-
-/*     email.addEventListener("input", function(e) {
-        if (/^[a-zA-Z0-9.! #$%&'*+/=? ^_`{|}~-]+@[a-zA-Z0-9-]+(?:\. [a-zA-Z0-9-]+)*$/.test(e.target.value)) {
-            console.log("Email : ok");
-          } else {
-            console.log("Email : notOk");
-          }
-        }); */
-
-
+//Création du tableau product pour l'api
+function createProductArray(){
+    let products = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        products[i] = JSON.parse(localStorage.getItem(localStorage.key(i))).idPdt;
+    }
+    return products;
 }
 
+//Validation des données
+function validateEmail(email){
+    regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return regex.test(email);
+}
 
-let contact = new Object();
- contact.firstName = document.getElementById("firstName").value;
- contact.lastName = document.getElementById("lastName").value;
- contact.address = document.getElementById("address").value;
- contact.city = document.getElementById("city").value;
- contact.email = document.getElementById("email").value;
+function validateAddress(address){
+    regex = /^[a-zA-Z0-9 ]*$/;
+    return regex.test(address);
+}
 
-/*  let products = JSON.stringify(localStorage); */
- let products = ["034707184e8e4eefb46400b5a3774b5f"];
- console.log(contact);
- console.log(products);
+function validateName(name){
+    regex = /^[a-zA-Z ]*$/;
+    return regex.test(name);
+}
+
+function validateDataUser(){
+    let contact = new Object();
+    let input = document.querySelectorAll('div.cart__order__form__question > input');
+    let error = document.querySelectorAll('div.cart__order__form__question > p');
+    for (let i = 0; i < input.length; i++) {
+        input[i].addEventListener('change', (event) => { 
+            let id = input[i].getAttribute("id");
+            if(id == 'firstName'){
+                if(validateName(input[i].value) == true){
+                    contact.firstName = input[i].value;
+                    error[i].innerText = "";
+                }else{
+                    error[i].innerText = "Veuillez rentrer un prénom sans chiffres ni caractères spéciaux";
+                }
+            }else if(id == 'lastName'){
+                if(validateName(input[i].value) == true){
+                    contact.lastName = input[i].value;
+                    error[i].innerText = "";
+                }else{
+                    error[i].innerText = "Veuillez rentrer un nom sans chiffres ni caractères spéciaux";
+                }
+            }else if(id == 'address'){
+                if(validateAddress(input[i].value) == true){
+                    contact.address = input[i].value;
+                    error[i].innerText = "";
+                }else{
+                    error[i].innerText = "Veuillez rentrer une adresse correcte sans caractères spéciaux";
+                }
+            }else if(id == 'city'){
+                if(validateAddress(input[i].value) == true){
+                    contact.city = input[i].value;
+                    error[i].innerText = "";
+                }else{
+                    error[i].innerText = "Veuillez rentrer une  correcte sans caractères spéciaux";
+                }
+            }else if(id == 'email'){
+                if(validateEmail(input[i].value) == true){
+                    contact.email = input[i].value;
+                    error[i].innerText = "";
+                }else{
+                    error[i].innerText = "Veuillez rentrer une adresse email valide";
+                }
+            }
+            console.log(contact);
+        });
+    }
+    return contact;
+}//fin de la fonction validateDataUser
+
+//Envoie des données à l'api
+ let products = createProductArray();
+ let contact = validateDataUser();
 
 function send(e){
     e.preventDefault();
@@ -294,22 +319,10 @@ function send(e){
       }
     })
     .then(function(value) {
-        console.log(value);
         linkOrder = "./confirmation.html?orderId=" + value.orderId;
         document.location.href=linkOrder;
     });
   }
-
-document
-    .getElementsByClassName("cart__order__form")[0]
-    .addEventListener("submit",send);
-
-
-
-
-
-
-
 
 const main = async () => {
     await createProductCard();
@@ -318,6 +331,12 @@ const main = async () => {
         calculatePrice(); 
         changeQuantity()
         deleteProduct();
+        validateDataUser();
+
+        document
+        .getElementsByClassName("cart__order__form")[0]
+        .addEventListener("submit",send);
+
     }, 500);
 }
 
