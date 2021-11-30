@@ -63,17 +63,15 @@ function getSelectedColor(elementId) {
 }
 
 //Trouver une clé disponible dans local storage
-function createKey(){
-    for (let i = 0; i <= numberOfProductInCart; i++) { 
-        if(localStorage.getItem("pdt" + i) == null){
+function createKey() {
+    for (let i = 0; i <= numberOfProductInCart; i++) {
+        if (localStorage.getItem("pdt" + i) == null) {
             key = "pdt" + i;
             i = numberOfProductInCart; //fin de la boucle
             return key;
         }
     }
 }
-
-
 
 //Ajout d'un produit
 function addPdt(indexPdt, idPdt, color, qty) {
@@ -94,10 +92,6 @@ function msgUser(qty) {
     elm.appendChild(msg);
 }
 
-
-console.log(localStorage);
-console.log("nombre de produit dans le panier : " + numberOfProductInCart);
-
 //Bouton "Ajouter au panier"
 const btn = document.getElementById('addToCart');
 btn.addEventListener('click', function (e) {
@@ -106,65 +100,37 @@ btn.addEventListener('click', function (e) {
         color: getSelectedColor("colors"),
         qty: parseInt(document.getElementById("quantity").value)
     }
-    console.log(newPdt.qty);
-if(newPdt.color == null){
-    alert("Veuillez sélectionner une couleur");
-}else{
-    if(newPdt.qty >= 1 && newPdt.qty <=100){ //Vérification de la quantité rentré par l'utilisateur
-        //Boucle pour vérifier si le produit mis dans le panier existe déjà
-        for (let i = 0; i <= numberOfProductInCart; i++) { 
-            /* console.log(localStorage.getItem(localStorage.key(i))); */
-            console.log(newPdt.idPdt + " " + newPdt.color);
-            let objLinea = localStorage.getItem(localStorage.key(i));
-            let objJson = JSON.parse(objLinea);
-            console.log("i = " + i);
-            if (i == numberOfProductInCart) { //On vérifie si tous les produits dans le panier ont été comparés
-                console.log("Fin des comparaisons / Ajout du nouveau produit");
-                //On utilise numberOfProductInCart comme indice pour le nouveau produit de localStorage
 
+    if (newPdt.color == null) {
+        alert("Veuillez sélectionner une couleur");
+    } else {
+        if (newPdt.qty >= 1 && newPdt.qty <= 100) { //Vérification de la quantité rentré par l'utilisateur
+            //Boucle pour vérifier si le produit mis dans le panier existe déjà
+            for (let i = 0; i <= numberOfProductInCart; i++) {
 
-                //création de la nouvelle clé du produit ajouter
+                let objLinea = localStorage.getItem(localStorage.key(i));
+                let objJson = JSON.parse(objLinea);
 
-
-
-
-                addPdt(createKey(), newPdt.idPdt, newPdt.color, newPdt.qty);
-
-
-
-
-
-
-                msgUser(newPdt.qty); //message de confirmation
-            } else {
-                //On vérifie si le produit ajouté est déjà dans le panier
-                if (newPdt.idPdt == objJson.idPdt & newPdt.color == objJson.color) {
-                    let updateQty = newPdt.qty + objJson.qty; //calcul nouvelle quantité du produit
-
-
-
-
-                    addPdt(localStorage.key(i), newPdt.idPdt, newPdt.color, updateQty); //Update du produit
-
-
-
-
+                if (i == numberOfProductInCart) { //On vérifie si tous les produits dans le panier ont été comparés
+                    //Ajout du produit
+                    addPdt(createKey(), newPdt.idPdt, newPdt.color, newPdt.qty);
 
                     msgUser(newPdt.qty); //message de confirmation
-                    i = numberOfProductInCart + 1; //On sort de la boucle
+                } else {
+                    //On vérifie si le produit ajouté est déjà dans le panier
+                    if (newPdt.idPdt == objJson.idPdt & newPdt.color == objJson.color) {
+                        let updateQty = newPdt.qty + objJson.qty; //calcul nouvelle quantité du produit
+                        addPdt(localStorage.key(i), newPdt.idPdt, newPdt.color, updateQty); //Update du produit
+                        msgUser(newPdt.qty); //message de confirmation
+                        i = numberOfProductInCart + 1; //On sort de la boucle
+                    }
                 }
             }
+        } else {
+            alert("Veuillez indiquer une quantité entre 1 et 100");
         }
-    }else{
-        alert("Veuillez indiquer une quantité entre 1 et 100");
     }
-}
 
-
-
-
- 
-    console.log(localStorage);
     numberOfProductInCart = localStorage.length; //mise à jour variable
 });
 

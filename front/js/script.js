@@ -1,14 +1,3 @@
-console.log("coucou");
-
-/* const $items = document.querySelector('items');
-
-const retrieveProductsData = () => fetch('http://localhost:3000/api/products')
-    .then(res => res.json())
-    .then(data => data.products)
-    .catch(err => console.log("Erreur fetch", err)) */
-
-
-
 fetch("http://localhost:3000/api/products") /* On envoie une requête de type GET à l'API */
   .then(function (res) {
     if (res.ok) { /* On vérifie si la requête est bien passée */
@@ -17,21 +6,19 @@ fetch("http://localhost:3000/api/products") /* On envoie une requête de type GE
     }
   })
   .then(function (value) {
-    console.log(value);
 
     const numberOfProducts = value.length;
-    console.log(numberOfProducts);
-    /*       var children = value.childNodes; */
+
+
 
     for (let i = 0; i < numberOfProducts; i++) {
-      /*       console.log("produit num : " + i); */
+
       let a = document.createElement("a");
       let art = document.createElement("article");
       let img = document.createElement("img");
       let name = document.createElement("h3");
       let description = document.createElement("p");
 
-      /* a.setAttribute("href", `product.html?productId=${value[i]._id}`); */
       a.setAttribute("href", `product.html?productId=${value[i]._id}`);
       a.appendChild(art);
 
