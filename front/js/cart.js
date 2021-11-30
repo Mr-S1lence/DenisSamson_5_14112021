@@ -2,8 +2,8 @@ const createProductCard = async () => {
     return new Promise((resolve,reject)=>{
         let numberOfProductInCart = localStorage.length;
         let result = false;
-    console.log("nombre de produits : " + numberOfProductInCart);
-    console.log(localStorage);
+/*     console.log("nombre de produits : " + numberOfProductInCart); */
+/*     console.log(localStorage); */
 
     
             fetch("http://localhost:3000/api/products/") /* On envoie une requête de type GET à l'API */
@@ -26,11 +26,11 @@ const createProductCard = async () => {
 
                     //création des produits sur la page
                     for (let i = 0; i < localStorage.length; i++) {
-                        console.log("boucle n°" + i);
+               /*          console.log("boucle n°" + i); */
                         let productId = JSON.parse(localStorage.getItem(localStorage.key(i))).idPdt;
                         let color = JSON.parse(localStorage.getItem(localStorage.key(i))).color;
-                        console.log(productId);
-                        console.log(color);
+                 /*        console.log(productId); */
+              /*           console.log(color); */
                 /*         console.log("IdPdt : " + productId); */
     
                         let art = document.createElement("article");
@@ -264,6 +264,47 @@ function validateDataUser(){
 
 
 }
+
+
+let contact = new Object();
+ contact.firstName = document.getElementById("firstName").value;
+ contact.lastName = document.getElementById("lastName").value;
+ contact.address = document.getElementById("address").value;
+ contact.city = document.getElementById("city").value;
+ contact.email = document.getElementById("email").value;
+
+/*  let products = JSON.stringify(localStorage); */
+ let products = ["034707184e8e4eefb46400b5a3774b5f"];
+ console.log(contact);
+ console.log(products);
+
+function send(e){
+    e.preventDefault();
+    fetch("http://localhost:3000/api/products/order", {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json', 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({contact: contact,products : products})
+    })
+    .then(function(res) {
+      if (res.ok) {
+        return res.json();
+      }
+    })
+    .then(function(value) {
+        console.log(value);
+        linkOrder = "./confirmation.html?orderId=" + value.orderId;
+        document.location.href=linkOrder;
+    });
+  }
+
+document
+    .getElementsByClassName("cart__order__form")[0]
+    .addEventListener("submit",send);
+
+
 
 
 
