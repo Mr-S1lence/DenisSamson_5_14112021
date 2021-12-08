@@ -133,7 +133,7 @@ btn.addEventListener('click', function (e) {
         } else {
             errorMsg.innerText = "Veuillez indiquer une quantité entre 1 et 100";
         }
-        errorMsg.innerText = "";
+/*         errorMsg.innerText = ""; */
     }
 
     numberOfProductInCart = localStorage.length; //mise à jour variable

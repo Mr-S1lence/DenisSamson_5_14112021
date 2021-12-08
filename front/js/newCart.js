@@ -134,6 +134,26 @@ function deleteProduct() {
     });
 }
 
+/* function deleteProduct() {
+    let deleteBtns = document.querySelectorAll(".deleteItem");
+    console.log(deleteBtns[0]);
+    for(i=0; i<deleteBtns.length; i++){
+        
+        deleteBtns[i].addEventListener('click', function (e) {
+            console.log(deleteBtns[i]);
+            let articleDom = deleteBtns[i].closest("article");
+            let itemId = articleDom.dataset.id;
+            let itemColor = articleDom.dataset.color;
+            localStorage.removeItem(findIndexProduct(itemId,itemColor));
+            articleDom.remove;
+            calculatePrice();
+        });
+    }
+} */
+
+
+
+
 //Création du tableau product pour l'api
 function createProductArray() {
     let products = [];
@@ -234,7 +254,7 @@ function send(e) {
         (validateName(contact.firstName) == true) &
         (validateName(contact.lastName) == true) &
         (validateAddress(contact.address) == true) &
-        (validateAddress(contact.city) == true) &
+        (validateCity(contact.city) == true) &
         (validateEmail(contact.email) == true)
     ) {
 
@@ -267,10 +287,7 @@ function send(e) {
     }
 }
 
-const main = async () => {
-    await renderItem();
-
-    setTimeout(() => {
+        renderItem();
         calculatePrice();
         changeQuantity()
         deleteProduct();
@@ -280,7 +297,3 @@ const main = async () => {
             .getElementById("order")
             .addEventListener("click", send);
 
-    }, 1000);
-}
-
-main()
