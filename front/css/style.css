@@ -266,3 +266,15 @@ footer .footerSecondary {
 		width: 75%;
 	}
 }
+
+/* Message d'erreur */
+.errorMsg {
+	text-align: center;
+	margin-top : 1rem;
+	Background: white;
+	color: red;
+	font-size: 15px;
+
+	border-radius: 40px;
+
+}

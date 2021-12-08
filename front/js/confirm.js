@@ -4,3 +4,4 @@ let orderId = params.get('orderId');
 document
     .getElementById("orderId")
     .innerText = orderId;
+/* localStorage.clear(); */

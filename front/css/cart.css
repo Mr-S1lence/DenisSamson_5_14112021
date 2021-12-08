@@ -43,10 +43,11 @@ h2 {
 .cart__item__content__titlePrice p {
 	margin: 0;
 }
-.cart__item__content__settings p {
-	margin: 0;
-}
+/* .cart__item__content__settings p { */
+/* 	margin: 0; */
+/* } */
 .cart__item__content__settings input {
+	height: 1.8rem;
 	color: var(--footer-secondary-color);
 	font-family: 'Montserrat', sans-serif;
 	font-size: 14px;
@@ -60,6 +61,7 @@ h2 {
 }
 .cart__item__content__settings__quantity {
 	display: flex;
+	align-items: center;
 }
 .cart__item__content__settings__quantity p {
 	margin-right: 10px;
@@ -110,12 +112,7 @@ h2 {
 .cart__order__form__question input:focus {
 	outline: none;
 }
-.cart__order__form__question p {
-	margin: 0;
-	color: #fbbcbc;
-	font-size: 15px;
-	margin-left: 8px;
-}
+
 .cart__order__form__submit {
 	display: flex;
 	justify-content: center;

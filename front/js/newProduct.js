@@ -1,43 +1,14 @@
-
 let params = (new URL(document.location)).searchParams;
 let productId = params.get('productId');
-let item__img = document.getElementById("item__img");
+let numberOfProductInCart = localStorage.length;
 
-
-fetch("http://localhost:3000/api/products/" + productId) /* On envoie une requête de type GET à l'API avec l'id du produit */
-    .then(function (res) {
-        if (res.ok) { /* On vérifie si la requête est bien passée */
-
-            return res.json(); /* Ce résultat json est une Promise, nous le retournons et récupérons sa vrai valeur dans la fonction then() suivante */
-        }
-    })
-    .then(function (value) {
-
-        //détails du produit
-        let img = document.createElement("img");
-        img.setAttribute("src", `${value.imageUrl}`);
-        img.setAttribute("alt", `${value.altTxt}`);
-
-        document.getElementsByClassName("item__img")[0].appendChild(img);
-        document.getElementById("title").innerText = value.name;
-        document.getElementById("price").innerText = value.price;
-        document.getElementById("description").innerText = value.description;
-
-        //liste des couleurs disponible
-        const numberOfColors = value.colors.length;
-        for (let i = 0; i < numberOfColors; i++) {
-            let color = document.createElement("option");
-            color.setAttribute("value", `${value.colors[i]}`);
-            color.innerText = value.colors[i];
-            document.getElementById("colors").appendChild(color);
-        }
-
-        //Désactiver "SVP, choisissez une couleur" comme option
-        document.getElementById("colors").firstElementChild.setAttribute("disabled", "disabled");
-
-    })
-    .catch(function (err) {
-        //Gestion des erreurs
+//Méthode qui permet d'appeler l'api retournant le produit
+async function getItem() {
+    try {
+        let response = await fetch("http://localhost:3000/api/products/" + productId)
+        return await response.json();
+    } catch {
+        // Une erreur est survenue
         console.log("erreur requête")
         const myNode = document.getElementsByClassName("item")[0];
         while (myNode.firstChild) { //Suppression de tous les élément html de la section "item"
@@ -46,12 +17,38 @@ fetch("http://localhost:3000/api/products/" + productId) /* On envoie une requê
         let msgErr = document.createElement("h2");
         msgErr.innerText = "Désolé, cette article n'existe pas ou est indisponible.";
         myNode.appendChild(msgErr);
-    });
+    }
+}
 
+//Function qui permet d'afficher les éléments dans le html
+(async function renderItem() {
+    let item = await getItem(); //Appel de la première fonction qui renvoie une promesse
+
+    //détails du produit
+    let img = document.createElement("img");
+    img.setAttribute("src", `${item.imageUrl}`);
+    img.setAttribute("alt", `${item.altTxt}`);
+
+    document.getElementsByClassName("item__img")[0].appendChild(img);
+    document.getElementById("title").innerText = item.name;
+    document.getElementById("price").innerText = item.price;
+    document.getElementById("description").innerText = item.description;
+
+    //liste des couleurs disponible
+    const numberOfColors = item.colors.length;
+    for (let i = 0; i < numberOfColors; i++) {
+        let color = document.createElement("option");
+        color.setAttribute("value", `${item.colors[i]}`);
+        color.innerText = item.colors[i];
+        document.getElementById("colors").appendChild(color);
+    }
+
+    //Désactiver "SVP, choisissez une couleur" comme option
+    document.getElementById("colors").firstElementChild.setAttribute("disabled", "disabled");
+
+})();
 
 /* AJOUT DANS PANIER */
-
-let numberOfProductInCart = localStorage.length;
 
 //récupérer couleur dans select/option
 function getSelectedColor(elementId) {
@@ -74,11 +71,16 @@ function createKey() {
 }
 
 //Ajout d'un produit
-function addPdt(indexPdt, idPdt, color, qty) {
+async function addPdt(indexPdt, idPdt, color, qty) {
+    let item = await getItem();
     let objJson = {
         idPdt: idPdt,
         color: color,
-        qty: qty
+        qty: qty,
+        name: item.name,
+        price: item.price,
+        imageUrl: item.imageUrl,
+        altTxt: item.altTxt
     }
     let objLinea = JSON.stringify(objJson);
     localStorage.setItem(indexPdt, objLinea);
@@ -94,6 +96,7 @@ function msgUser(qty) {
 
 //Bouton "Ajouter au panier"
 const btn = document.getElementById('addToCart');
+const errorMsg = document.getElementsByClassName("errorMsg")[0]
 btn.addEventListener('click', function (e) {
     let newPdt = {
         idPdt: productId,
@@ -102,7 +105,7 @@ btn.addEventListener('click', function (e) {
     }
 
     if (newPdt.color == null) {
-        alert("Veuillez sélectionner une couleur");
+        errorMsg.innerText = "Veuillez sélectionner une couleur";
     } else {
         if (newPdt.qty >= 1 && newPdt.qty <= 100) { //Vérification de la quantité rentré par l'utilisateur
             //Boucle pour vérifier si le produit mis dans le panier existe déjà
@@ -126,17 +129,12 @@ btn.addEventListener('click', function (e) {
                     }
                 }
             }
+            errorMsg.innerText = "";
         } else {
-            alert("Veuillez indiquer une quantité entre 1 et 100");
+            errorMsg.innerText = "Veuillez indiquer une quantité entre 1 et 100";
         }
+        errorMsg.innerText = "";
     }
 
     numberOfProductInCart = localStorage.length; //mise à jour variable
 });
-
-
-
-
-
-
-
