@@ -69,7 +69,7 @@ function createKey() {
 }
 
 //Ajout d'un produit
-async function addPdt(indexPdt, idPdt, color, qty) {
+function addPdt(indexPdt, idPdt, color, qty) {
     let objJson = {
         idPdt: idPdt,
         color: color,

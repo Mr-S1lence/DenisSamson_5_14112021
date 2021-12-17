@@ -49,7 +49,7 @@ async function renderItem() {
 }
 
 //calcul du prix total
-async function calculatePrice() {
+function calculatePrice() {
     let totalQty = 0;
     let totalPrice = 0;
     let priceContent = document.querySelectorAll('.cart__item div.cart__item__content__description');
@@ -81,7 +81,7 @@ function findIndexProduct(idPdt, color) {
 //update LocalStorage
 function updatePdt(keyPdt, qty) {
     let existing = localStorage.getItem(keyPdt);
-    existing = existing ? JSON.parse(existing) : {};
+    existing = existing ? JSON.parse(existing) : {}; //opérateur (ternaire) conditionnel
     existing['qty'] = qty;
     localStorage.setItem(keyPdt, JSON.stringify(existing));
 }
@@ -97,7 +97,7 @@ function changeQuantity() {
         let dataColor = myNode.getAttribute('data-color');
         let inputQty = document.querySelectorAll('.itemQuantity');
         let msgErr = document.querySelectorAll('.cart__item__content .errorMsg');
-        el[i].addEventListener('change', (event) => {
+        el[i].addEventListener('change', () => {
             if (inputQty[i].value >= 1 && inputQty[i].value <= 100) { //Vérification de la quantité rentré par l'utilisateur
                 msgErr[i].innerText = "";
                 inputQty[i].style.border = "none";
@@ -158,10 +158,12 @@ function validateName(name) {
     return regex.test(name);
 }
 
+//Erreur sous le bouton commandé : "panier vide / Erreur de saisie dans le formulaire"
 const errSubmit = document.querySelector(".cart__order__form > p:last-child");
 
 function validateDataUser() { //Vérification à chaque changement d'un des champs du formulaire
     const input = document.querySelectorAll('div.cart__order__form__question > input');
+    //Erreur sous l'input concerné
     const error = document.querySelectorAll('div.cart__order__form__question > p');
     for (let i = 0; i < input.length; i++) {
         input[i].addEventListener('change', () => {
@@ -193,7 +195,7 @@ function validateDataUser() { //Vérification à chaque changement d'un des cham
                     if (validateCity(input[i].value) == true) {
                         error[i].innerText = "";
                     } else {
-                        error[i].innerText = "Veuillez rentrer une  correcte sans caractères spéciaux";
+                        error[i].innerText = "Veuillez rentrer le nom d'une ville correcte sans chiffres ni caractères spéciaux";
                     }
                     break;
                 case 'email':
@@ -220,8 +222,8 @@ function send(e) {
         city: document.getElementById('city').value,
         email: document.getElementById('email').value,
     });
-    if((localStorage.length != 0)){
-        if (//Vérification de "contact" et "products"
+    if((localStorage.length != 0)){//Vérification si le panier est vide
+        if (//Vérification de "contact"
             (validateName(contact.firstName) == true) &
             (validateName(contact.lastName) == true) &
             (validateAddress(contact.address) == true) &
@@ -229,14 +231,14 @@ function send(e) {
             (validateEmail(contact.email) == true)
         ){
 
-            e.preventDefault();
+            e.preventDefault();//Permet de ne pas executer le comportement par défaut
             fetch("http://localhost:3000/api/products/order", {
                 method: "POST",
-                headers: {
+                headers: {//Définit les données qu'on envoie
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ contact: contact, products: products })
+                body: JSON.stringify({ contact: contact, products: products })//Conversion en JSON
             })
                 .then(function (res) {
                     if (res.ok) {
