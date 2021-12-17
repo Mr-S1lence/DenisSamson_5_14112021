@@ -1,5 +1,7 @@
+//Récupération de l'ID du produit dans l'URL
 let params = (new URL(document.location)).searchParams;
 let productId = params.get('productId');
+//Nombre de produits dans le panier.
 let numberOfProductInCart = localStorage.length;
 
 //Méthode qui permet d'appeler l'api retournant le produit
@@ -7,9 +9,8 @@ async function getItem() {
     try {
         let response = await fetch("http://localhost:3000/api/products/" + productId);
         return await response.json();
-    } catch {
-        // Une erreur est survenue
-        console.log("erreur requête")
+    } catch (error) {
+        console.log("Error : " + error);
     }
 }
 
@@ -88,7 +89,7 @@ const errorMsg = document.getElementsByClassName("errorMsg")[0]
 let msgConfirmAddInCart = document.createElement("h2");
 document.getElementsByClassName("item__content")[0].appendChild(msgConfirmAddInCart);
 
-btn.addEventListener('click', function (e) {
+btn.addEventListener('click', function () {
     let newPdt = {
         idPdt: productId,
         color: getSelectedColor("colors"),

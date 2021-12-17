@@ -51,7 +51,7 @@ async function renderItem() {
 //calcul du prix total
 async function calculatePrice() {
     let totalQty = 0;
-    let totalPrice1 = 0;
+    let totalPrice = 0;
     let priceContent = document.querySelectorAll('.cart__item div.cart__item__content__description');
     let inputQty = document.querySelectorAll('.itemQuantity');
 
@@ -60,10 +60,10 @@ async function calculatePrice() {
         let newPriceP = priceP.substring(0, priceP.length - 1);
         let Qty = inputQty[i].value;
         totalQty = totalQty + parseInt(Qty);
-        totalPrice1 = totalPrice1 + (parseInt(Qty) * parseInt(newPriceP))
+        totalPrice = totalPrice + (parseInt(Qty) * parseInt(newPriceP))
     }
     document.getElementById("totalQuantity").innerText = totalQty;
-    document.getElementById("totalPrice").innerText = totalPrice1;
+    document.getElementById("totalPrice").innerText = totalPrice;
 }
 
 //function pour trouver l'index d'un produit dans localStorage 
@@ -118,12 +118,10 @@ function deleteProduct() {
     let deleteBtn = document.getElementsByClassName("deleteItem");
     Array.from(deleteBtn).forEach(child => {
         let myNode = child.closest("article");
-        deleteBtn = document.getElementsByClassName("deleteItem");
-        child.addEventListener('click', function (e) {
+        child.addEventListener('click', function () {
             let dataProduct = '[data-id="' + myNode.getAttribute('data-id') + '"][data-color="' + myNode.getAttribute('data-color') + '"]';
             let objDelete = child.closest(dataProduct);
             localStorage.removeItem(findIndexProduct(myNode.getAttribute('data-id'), myNode.getAttribute('data-color')));
-            calculatePrice();
             objDelete.remove();
             calculatePrice();
         });
@@ -136,13 +134,12 @@ function createProductArray() {
     for (let i = 0; i < localStorage.length; i++) {
         products[i] = JSON.parse(localStorage.getItem(localStorage.key(i))).idPdt;
     }
-    console.log(products);
     return products;
 }
 
 //Validation des données
 function validateEmail(email) {
-    regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    regex = /^[a-zA-Z-_]+@[a-zA-Z-]+\.[a-zA-Z]{2,6}$/;
     return regex.test(email);
 }
 
@@ -167,7 +164,7 @@ function validateDataUser() { //Vérification à chaque changement d'un des cham
     const input = document.querySelectorAll('div.cart__order__form__question > input');
     const error = document.querySelectorAll('div.cart__order__form__question > p');
     for (let i = 0; i < input.length; i++) {
-        input[i].addEventListener('change', (event) => {
+        input[i].addEventListener('change', () => {
             let id = input[i].getAttribute("id");
             error[i].className = 'errorMsg';
             switch (id) {
@@ -223,50 +220,52 @@ function send(e) {
         city: document.getElementById('city').value,
         email: document.getElementById('email').value,
     });
+    if((localStorage.length != 0)){
+        if (//Vérification de "contact" et "products"
+            (validateName(contact.firstName) == true) &
+            (validateName(contact.lastName) == true) &
+            (validateAddress(contact.address) == true) &
+            (validateCity(contact.city) == true) &
+            (validateEmail(contact.email) == true)
+        ){
 
-    if (//Vérification de "contact" et "products"
-        (localStorage.length != 0) &
-        (validateName(contact.firstName) == true) &
-        (validateName(contact.lastName) == true) &
-        (validateAddress(contact.address) == true) &
-        (validateCity(contact.city) == true) &
-        (validateEmail(contact.email) == true)
-    ) {
-
-        e.preventDefault();
-        fetch("http://localhost:3000/api/products/order", {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ contact: contact, products: products })
-        })
-            .then(function (res) {
-                if (res.ok) {
-                    return res.json();
-                }
+            e.preventDefault();
+            fetch("http://localhost:3000/api/products/order", {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ contact: contact, products: products })
             })
-            .then(function (value) {
-                linkOrder = "./confirmation.html?orderId=" + value.orderId;
-                document.location.href = linkOrder;
-            }).catch(function (err) {
-                // Une erreur est survenue
-                console.log("erreur requête")
-            });
-    } else {
-        console.log(contact);
-
+                .then(function (res) {
+                    if (res.ok) {
+                        return res.json();
+                    }
+                })
+                .then(function (value) {
+                    linkOrder = "./confirmation.html?orderId=" + value.orderId;
+                    document.location.href = linkOrder;
+                }).catch(function (err) {
+                    // Une erreur est survenue
+                    console.log("erreur requête")
+                });
+        } else {
+            errSubmit.className = 'errorMsg';
+            errSubmit.innerText = "Veuillez renseigner correctement le formulaire.";
+        }
+    }else{
         errSubmit.className = 'errorMsg';
-        errSubmit.innerText = "Veuillez renseigner correctement le formulaire";
+        errSubmit.innerText = "Votre panier est vide.";
     }
+    
 } //Fin de la fonction send
 
 renderItem();
 calculatePrice();
-changeQuantity()
+changeQuantity();
 deleteProduct();
-validateDataUser()
+validateDataUser();
 
 document
     .getElementById("order")
